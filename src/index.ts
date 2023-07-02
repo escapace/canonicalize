@@ -13,7 +13,7 @@ function hasComma(num: number): string {
  * @param object The object to convert.
  * @return The canonicalized string or undefined.
  */
-export function canonify(object: any): string | undefined {
+export function canonicalize(object: any): string | undefined {
   // See : https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof
   if (
     object === null ||
@@ -30,13 +30,13 @@ export function canonify(object: any): string | undefined {
   }
 
   if (typeof object === 'function' || typeof object === 'symbol') {
-    return canonify(undefined)
+    return canonicalize(undefined)
   }
 
   // Classes with a `toJSON` function, or Objects with a `toJSON` key where the value
   // is a Function are serialized using `toJSON()`.
   if (object.toJSON instanceof Function) {
-    return canonify(object.toJSON())
+    return canonicalize(object.toJSON())
   }
 
   if (Array.isArray(object)) {
@@ -47,7 +47,7 @@ export function canonify(object: any): string | undefined {
           ? null
           : cv
       // total,value
-      return `${t}${hasComma(ci)}${canonify(value)}`
+      return `${t}${hasComma(ci)}${canonicalize(value)}`
     }, '')
 
     return `[${values}]`
@@ -66,7 +66,9 @@ export function canonify(object: any): string | undefined {
       }
 
       // total,key:value
-      return `${t}${hasComma(t.length)}${canonify(cv)}:${canonify(object[cv])}`
+      return `${t}${hasComma(t.length)}${canonicalize(cv)}:${canonicalize(
+        object[cv]
+      )}`
     }, '')
   return `{${values}}`
 }

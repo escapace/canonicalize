@@ -4,7 +4,7 @@ import { expect, test } from 'vitest'
 
 import fs from 'fs'
 import { readJsonSync } from 'fs-extra'
-import { canonify } from '../src/index'
+import { canonicalize } from '../src/index'
 
 const encodeUtf8 = (value: string) => new TextEncoder().encode(value)
 
@@ -20,8 +20,8 @@ test('arrays', () => {
     .readFileSync('tests/testdata/outhex/arrays.txt', 'utf8')
     .trim()
     .replace(/\s+/g, '')
-  expect(canonify(input)).toEqual(expected)
-  expect(toHex(encodeUtf8(canonify(input) ?? ''))).toEqual(expectedHex)
+  expect(canonicalize(input)).toEqual(expected)
+  expect(toHex(encodeUtf8(canonicalize(input) ?? ''))).toEqual(expectedHex)
 })
 
 test('french', () => {
@@ -33,8 +33,8 @@ test('french', () => {
     .readFileSync('tests/testdata/outhex/french.txt', 'utf8')
     .trim()
     .replace(/\s+/g, '')
-  expect(canonify(input)).toEqual(expected)
-  expect(toHex(encodeUtf8(canonify(input) ?? ''))).toEqual(expectedHex)
+  expect(canonicalize(input)).toEqual(expected)
+  expect(toHex(encodeUtf8(canonicalize(input) ?? ''))).toEqual(expectedHex)
 })
 
 test('structures', () => {
@@ -46,8 +46,8 @@ test('structures', () => {
     .readFileSync('tests/testdata/outhex/structures.txt', 'utf8')
     .trim()
     .replace(/\s+/g, '')
-  expect(canonify(input)).toEqual(expected)
-  expect(toHex(encodeUtf8(canonify(input) ?? ''))).toEqual(expectedHex)
+  expect(canonicalize(input)).toEqual(expected)
+  expect(toHex(encodeUtf8(canonicalize(input) ?? ''))).toEqual(expectedHex)
 })
 
 test('unicode', () => {
@@ -59,8 +59,8 @@ test('unicode', () => {
     .readFileSync('tests/testdata/outhex/unicode.txt', 'utf8')
     .trim()
     .replace(/\s+/g, '')
-  expect(canonify(input)).toEqual(expected)
-  expect(toHex(encodeUtf8(canonify(input) ?? ''))).toEqual(expectedHex)
+  expect(canonicalize(input)).toEqual(expected)
+  expect(toHex(encodeUtf8(canonicalize(input) ?? ''))).toEqual(expectedHex)
 })
 
 test('values', () => {
@@ -72,8 +72,8 @@ test('values', () => {
     .readFileSync('tests/testdata/outhex/values.txt', 'utf8')
     .trim()
     .replace(/\s+/g, '')
-  expect(canonify(input)).toEqual(expected)
-  expect(toHex(encodeUtf8(canonify(input) ?? ''))).toEqual(expectedHex)
+  expect(canonicalize(input)).toEqual(expected)
+  expect(toHex(encodeUtf8(canonicalize(input) ?? ''))).toEqual(expectedHex)
 })
 
 test('weird', () => {
@@ -85,6 +85,6 @@ test('weird', () => {
     .readFileSync('tests/testdata/outhex/weird.txt', 'utf8')
     .trim()
     .replace(/\s+/g, '')
-  expect(canonify(input)).toEqual(expected)
-  expect(toHex(canonify(input))).toEqual(expectedHex)
+  expect(canonicalize(input)).toEqual(expected)
+  expect(toHex(canonicalize(input))).toEqual(expectedHex)
 })
