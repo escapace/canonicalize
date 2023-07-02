@@ -4,7 +4,7 @@
 
 import { describe, test, expect } from 'vitest'
 
-import { canonify } from '../src/index'
+import { canonicalize } from '../src/index'
 
 describe('serializing', () => {
   describe('should behave like JSON.stringify() for', () => {
@@ -14,32 +14,32 @@ describe('serializing', () => {
     // JSON.stringify(undefined)
     // undefined
     test('undefined', () => {
-      expect(canonify(undefined)).toEqual(undefined)
+      expect(canonicalize(undefined)).toEqual(undefined)
     })
 
     // JSON.stringify(null)
     // 'null'
     test('null', () => {
-      expect(canonify(null)).toEqual('null')
+      expect(canonicalize(null)).toEqual('null')
     })
 
     // JSON.stringify(true)
     // 'true'
     test('true', () => {
-      expect(canonify(true)).toEqual('true')
+      expect(canonicalize(true)).toEqual('true')
     })
 
     // JSON.stringify(false)
     // 'false'
     test('false', () => {
-      expect(canonify(false)).toEqual('false')
+      expect(canonicalize(false)).toEqual('false')
     })
 
     // JSON.stringify(() => { })
     // undefined
     test('function', () => {
       expect(
-        canonify(() => {
+        canonicalize(() => {
           console.log('hello')
         }),
       ).toEqual(undefined)
@@ -48,25 +48,25 @@ describe('serializing', () => {
     // > JSON.stringify(Symbol('hello world'))
     // undefined
     test('symbol', () => {
-      expect(canonify(Symbol('hello world'))).toEqual(undefined)
+      expect(canonicalize(Symbol('hello world'))).toEqual(undefined)
     })
 
     // JSON.stringify(42)
     // '42'
     test('number', () => {
-      expect(canonify(42)).toEqual('42')
+      expect(canonicalize(42)).toEqual('42')
     })
 
     // > JSON.stringify([NaN, null, Infinity]);
     // '[null,null,null]'
     test('number, NaN, Infinity', () => {
-      expect(canonify([NaN, null, Infinity])).toEqual('[null,null,null]')
+      expect(canonicalize([NaN, null, Infinity])).toEqual('[null,null,null]')
     })
 
     // > JSON.stringify(Math.pow(2, 1000))
     // '1.0715086071862673e+301'
     test('large integer number', () => {
-      expect(canonify(Math.pow(2, 1000))).toEqual('1.0715086071862673e+301')
+      expect(canonicalize(Math.pow(2, 1000))).toEqual('1.0715086071862673e+301')
     })
 
     // > JSON.stringify(BigInt(9007199254740991))
@@ -75,7 +75,7 @@ describe('serializing', () => {
     test('BigInt should throw a TypeError', () => {
       const t = () => {
         const bigint = BigInt(9007199254740991)
-        canonify(bigint)
+        canonicalize(bigint)
       }
       expect(t).toThrow(TypeError)
       expect(t).toThrow("BigInt value can't be serialized in JSON")
@@ -84,11 +84,11 @@ describe('serializing', () => {
     // JSON.stringify('foo')
     // '"foo"'
     test('string', () => {
-      expect(canonify('foo')).toEqual('"foo"')
+      expect(canonicalize('foo')).toEqual('"foo"')
     })
 
     test('Date conversion to string', () => {
-      expect(canonify(new Date(Date.UTC(2006, 0, 2, 15, 4, 5)))).toEqual(
+      expect(canonicalize(new Date(Date.UTC(2006, 0, 2, 15, 4, 5)))).toEqual(
         '"2006-01-02T15:04:05.000Z"',
       )
     })
@@ -96,7 +96,7 @@ describe('serializing', () => {
     // > JSON.stringify("\u20ac")
     // '"€"'
     test('a unicode code point', () => {
-      expect(canonify('\u20ac')).toEqual('"€"')
+      expect(canonicalize('\u20ac')).toEqual('"€"')
     })
 
     // JSON.stringify([undefined, null, true, false, "foo", 42, BigInt(42).toString(), Symbol('hello'), () => { }])
@@ -115,7 +115,7 @@ describe('serializing', () => {
           console.log('hello')
         },
       ]
-      expect(canonify(a)).toEqual(
+      expect(canonicalize(a)).toEqual(
         '[null,null,true,false,"foo",42,"42",null,null]',
       )
     })
@@ -124,7 +124,7 @@ describe('serializing', () => {
       const a = ['foo', 'bar']
       // @ts-ignore-next-line
       a['baz'] = 'quux' // a: [ 0: 'foo', 1: 'bar', baz: 'quux' ]
-      expect(canonify(a)).toEqual('["foo","bar"]')
+      expect(canonicalize(a)).toEqual('["foo","bar"]')
     })
 
     // > JSON.stringify({ big: BigInt(42).toString(), f: false, fun: () => { }, n: null, num: 42, s: "string", sym: Symbol('hello'), t: true, u: undefined })
@@ -143,7 +143,7 @@ describe('serializing', () => {
         t: true,
         u: undefined,
       }
-      expect(canonify(o)).toEqual(
+      expect(canonicalize(o)).toEqual(
         '{"big":"42","f":false,"n":null,"num":42,"s":"string","t":true}',
       )
     })
@@ -158,7 +158,7 @@ describe('serializing', () => {
         new WeakSet([{ a: 1 }]),
         new WeakMap([[{ a: 1 }, 2]]),
       ]
-      expect(canonify(o)).toEqual('[{},{},{},{}]')
+      expect(canonicalize(o)).toEqual('[{},{},{},{}]')
     })
 
     // TypedArray
@@ -170,7 +170,7 @@ describe('serializing', () => {
     // '[{"0":1},{"0":1}]'
     test('TypedArray', () => {
       const e1 = [new Int8Array([1]), new Int16Array([1]), new Int32Array([1])]
-      expect(canonify(e1)).toEqual('[{"0":1},{"0":1},{"0":1}]')
+      expect(canonicalize(e1)).toEqual('[{"0":1},{"0":1},{"0":1}]')
 
       const e2 = [
         new Uint8Array([1]),
@@ -178,10 +178,10 @@ describe('serializing', () => {
         new Uint16Array([1]),
         new Uint32Array([1]),
       ]
-      expect(canonify(e2)).toEqual('[{"0":1},{"0":1},{"0":1},{"0":1}]')
+      expect(canonicalize(e2)).toEqual('[{"0":1},{"0":1},{"0":1},{"0":1}]')
 
       const e3 = [new Float32Array([1]), new Float64Array([1])]
-      expect(canonify(e3)).toEqual('[{"0":1},{"0":1}]')
+      expect(canonicalize(e3)).toEqual('[{"0":1},{"0":1}]')
     })
 
     // JSON.stringify({ x: undefined, y: Object, z: Symbol('') });
@@ -193,14 +193,14 @@ describe('serializing', () => {
     test('Symbols', () => {
       // @ts-ignore-next-line
       const e1 = { x: undefined, y: Object, z: Symbol('') }
-      expect(canonify(e1)).toEqual('{}')
+      expect(canonicalize(e1)).toEqual('{}')
 
       // @ts-ignore-next-line
       const e2 = { [Symbol('foo')]: 'foo' }
-      expect(canonify(e2)).toEqual('{}')
+      expect(canonicalize(e2)).toEqual('{}')
 
       const e3 = [{ [Symbol.for('foo')]: 'foo' }, [Symbol.for('foo')]]
-      expect(canonify(e3)).toEqual('[{},[null]]')
+      expect(canonicalize(e3)).toEqual('[{},[null]]')
     })
 
     // JSON.stringify(Object.create(null, { x: { value: 'x', enumerable: false }, y: { value: 'y', enumerable: true } }));
@@ -210,19 +210,19 @@ describe('serializing', () => {
         x: { value: 'x', enumerable: false },
         y: { value: 'y', enumerable: true },
       })
-      expect(canonify(o)).toEqual('{"y":"y"}')
+      expect(canonicalize(o)).toEqual('{"y":"y"}')
     })
 
     test('Serializing Unicode strings, control chars, lone surrogates', () => {
-      expect(canonify('\uD800')).toEqual('"\\ud800"')
-      expect(canonify('\uDEAD')).toEqual('"\\udead"')
-      expect(canonify('\u0008')).toEqual('"\\b"')
-      expect(canonify('\u0009')).toEqual('"\\t"')
-      expect(canonify('\u000A')).toEqual('"\\n"')
-      expect(canonify('\u000C')).toEqual('"\\f"')
-      expect(canonify('\u000D')).toEqual('"\\r"')
-      expect(canonify('\u005C')).toEqual('"\\\\"')
-      expect(canonify('\u0022')).toEqual('"\\""')
+      expect(canonicalize('\uD800')).toEqual('"\\ud800"')
+      expect(canonicalize('\uDEAD')).toEqual('"\\udead"')
+      expect(canonicalize('\u0008')).toEqual('"\\b"')
+      expect(canonicalize('\u0009')).toEqual('"\\t"')
+      expect(canonicalize('\u000A')).toEqual('"\\n"')
+      expect(canonicalize('\u000C')).toEqual('"\\f"')
+      expect(canonicalize('\u000D')).toEqual('"\\r"')
+      expect(canonicalize('\u005C')).toEqual('"\\\\"')
+      expect(canonicalize('\u0022')).toEqual('"\\""')
     })
 
     // FIXME
@@ -248,56 +248,56 @@ describe('serializing', () => {
 
   describe('arrays should handle', () => {
     test('an empty array', () => {
-      expect(canonify([])).toEqual('[]')
+      expect(canonicalize([])).toEqual('[]')
     })
 
     test('a one element string array', () => {
-      expect(canonify(['abc'])).toEqual('["abc"]')
+      expect(canonicalize(['abc'])).toEqual('["abc"]')
     })
 
     test('a one element number array', () => {
-      expect(canonify([123])).toEqual('[123]')
+      expect(canonicalize([123])).toEqual('[123]')
     })
 
     test('a one element boolean true array', () => {
-      expect(canonify([true])).toEqual('[true]')
+      expect(canonicalize([true])).toEqual('[true]')
     })
 
     test('a one element boolean false array', () => {
-      expect(canonify([false])).toEqual('[false]')
+      expect(canonicalize([false])).toEqual('[false]')
     })
 
     test('a one element null array', () => {
-      expect(canonify([null])).toEqual('[null]')
+      expect(canonicalize([null])).toEqual('[null]')
     })
 
     test('a one element undefined array', () => {
-      expect(canonify([undefined])).toEqual('[null]')
+      expect(canonicalize([undefined])).toEqual('[null]')
     })
 
     test('a one element Symbol array', () => {
-      expect(canonify([Symbol('hello world')])).toEqual('[null]')
+      expect(canonicalize([Symbol('hello world')])).toEqual('[null]')
     })
 
     test('a one element function array', () => {
       const f = function foo() {
         console.log('hello')
       }
-      expect(canonify([f])).toEqual('[null]')
+      expect(canonicalize([f])).toEqual('[null]')
     })
 
     test('a nested array', () => {
-      expect(canonify([['b', 'a']])).toEqual('[["b","a"]]')
+      expect(canonicalize([['b', 'a']])).toEqual('[["b","a"]]')
     })
 
     test('an object in an array', () => {
-      expect(canonify([{ b: 123, a: 'string' }])).toEqual(
+      expect(canonicalize([{ b: 123, a: 'string' }])).toEqual(
         '[{"a":"string","b":123}]',
       )
     })
 
     test('a multi-element array', () => {
-      expect(canonify(['abc', 123, true, false, null])).toEqual(
+      expect(canonicalize(['abc', 123, true, false, null])).toEqual(
         '["abc",123,true,false,null]',
       )
     })
@@ -305,47 +305,47 @@ describe('serializing', () => {
 
   describe('objects should handle', () => {
     test('an empty object', () => {
-      expect(canonify({})).toEqual('{}')
+      expect(canonicalize({})).toEqual('{}')
     })
 
     test('object with one key', () => {
-      expect(canonify({ hello: 'world' })).toEqual('{"hello":"world"}')
+      expect(canonicalize({ hello: 'world' })).toEqual('{"hello":"world"}')
     })
 
     test('an object with a number key', () => {
-      expect(canonify({ 42: 'foo' })).toEqual('{"42":"foo"}')
+      expect(canonicalize({ 42: 'foo' })).toEqual('{"42":"foo"}')
     })
 
     test('an object with a Symbol key', () => {
-      expect(canonify({ [Symbol('hello world')]: 'foo' })).toEqual('{}')
+      expect(canonicalize({ [Symbol('hello world')]: 'foo' })).toEqual('{}')
     })
 
     test('an object with more than one key should sort keys', () => {
-      expect(canonify({ number: 123, hello: 'world' })).toEqual(
+      expect(canonicalize({ number: 123, hello: 'world' })).toEqual(
         '{"hello":"world","number":123}',
       )
     })
 
     test('an object with null value', () => {
-      expect(canonify({ test: null })).toEqual('{"test":null}')
+      expect(canonicalize({ test: null })).toEqual('{"test":null}')
     })
 
     test('object with undefined value', () => {
-      expect(canonify({ test: undefined })).toEqual('{}')
+      expect(canonicalize({ test: undefined })).toEqual('{}')
     })
 
     test('object with a Symbol value', () => {
-      expect(canonify({ test: Symbol('hello world') })).toEqual('{}')
+      expect(canonicalize({ test: Symbol('hello world') })).toEqual('{}')
     })
 
     test('an object with object value', () => {
-      expect(canonify({ test: { hello: 'world' } })).toEqual(
+      expect(canonicalize({ test: { hello: 'world' } })).toEqual(
         '{"test":{"hello":"world"}}',
       )
     })
 
     test('an object with array value', () => {
-      expect(canonify({ test: ['hello', 'world'] })).toEqual(
+      expect(canonicalize({ test: ['hello', 'world'] })).toEqual(
         '{"test":["hello","world"]}',
       )
     })
@@ -354,7 +354,7 @@ describe('serializing', () => {
       const f = function foo() {
         console.log('hello')
       }
-      expect(canonify({ test: f })).toEqual('{}')
+      expect(canonicalize({ test: f })).toEqual('{}')
     })
 
     test('an object with a toJSON serializer function value', () => {
@@ -371,7 +371,7 @@ describe('serializing', () => {
         },
       }
 
-      expect(canonify(input)).toEqual('{"a":123,"b":456,"c":"foo"}')
+      expect(canonicalize(input)).toEqual('{"a":123,"b":456,"c":"foo"}')
     })
   })
 
@@ -393,7 +393,7 @@ describe('serializing', () => {
 
       const f = new Foo(123, 456)
 
-      expect(canonify(f)).toEqual('{"a":123,"b":456,"c":"foo"}')
+      expect(canonicalize(f)).toEqual('{"a":123,"b":456,"c":"foo"}')
     })
 
     test('a class with no toJSON serializer function', () => {
@@ -412,7 +412,7 @@ describe('serializing', () => {
 
       const f = new Foo(456, 123)
 
-      expect(canonify(f)).toEqual('{"a":123,"b":456}')
+      expect(canonicalize(f)).toEqual('{"a":123,"b":456}')
     })
   })
 })
