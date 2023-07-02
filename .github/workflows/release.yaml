@@ -1,0 +1,90 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  # 7 GiB by default on GitHub, setting to 6 GiB
+  # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+  NODE_OPTIONS: --max-old-space-size=6144
+
+jobs:
+  context:
+    uses: ./.github/workflows/workflow-call-context.yaml
+  ci:
+    if: needs.context.outputs.environment == 'production'
+    uses: ./.github/workflows/workflow-call-ci.yaml
+    needs:
+      - context
+    with:
+      ref: ${{ needs.context.outputs.ref }}
+      node-version: ${{ needs.context.outputs.node-version }}
+      pnpm-version: ${{ needs.context.outputs.pnpm-version }}
+      version: ${{ needs.context.outputs.version }}
+  release:
+    if: needs.context.outputs.environment == 'production'
+    runs-on: ubuntu-latest
+    needs:
+      - context
+      - ci
+    permissions:
+      id-token: write
+      packages: write
+      contents: write
+    steps:
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ needs.context.outputs.node-version }}
+      - name: download package
+        uses: actions/download-artifact@v3
+        with:
+          name: package
+      - name: install latest npm
+        run: |
+          npm install -g npm
+          npm --version
+      - name: publish to github packages
+        run: |
+          cat << EOF > "$HOME/.npmrc"
+            //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+            @escapace:registry=https://npm.pkg.github.com
+            provenance=true
+            always-auth=true
+          EOF
+
+          npm publish --provenance --access public *.tgz
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: publish to npmjs
+        run: |
+          cat << EOF > "$HOME/.npmrc"
+            //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
+            @escapace:registry=https://registry.npmjs.org
+            provenance=true
+            always-auth=true
+          EOF
+
+          npm publish --provenance --access public *.tgz
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.ref.outputs.value }}
+      - name: github release
+        run: |
+          echo "${{ needs.context.outputs.changelog }}" > changelog.md
+
+          if [[ "${{ needs.context.outputs.prerelease }}" == "true" ]]; then
+            gh release create v${{ needs.context.outputs.version }} \
+              --prerelease \
+              --notes-file changelog.md
+          else
+            gh release create v${{ needs.context.outputs.version }} \
+              --notes-file changelog.md
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
