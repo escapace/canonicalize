@@ -13,6 +13,8 @@ function hasComma(num: number): string {
  * @param object The object to convert.
  * @return The canonicalized string or undefined.
  */
+export function canonicalize(object: undefined): undefined
+export function canonicalize(object: any): string
 export function canonicalize(object: any): string | undefined {
   // See : https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof
   if (
