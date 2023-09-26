@@ -1,10 +1,10 @@
 {
+  "extends": ["escapace"],
   "parserOptions": {
-    "warnOnUnsupportedTypeScriptVersion": false,
-    "project": "./tsconfig.json"
+    "project": "./tsconfig.json",
+    "warnOnUnsupportedTypeScriptVersion": false
   },
   "root": true,
-  "extends": ["escapace"],
   "rules": {
     "@typescript-eslint/no-explicit-any": 0,
     "@typescript-eslint/no-unsafe-assignment": 0,
