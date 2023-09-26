@@ -6,9 +6,7 @@
     "name": "escapace",
     "email": "opensource@escapace.com"
   },
-  "bugs": {
-    "url": "https://github.com/escapace/canonicalize/issues"
-  },
+  "bugs": "https://github.com/escapace/canonicalize/issues",
   "devDependencies": {
     "@commitlint/cli": "17.7.1",
     "@commitlint/config-conventional": "17.7.0",
@@ -58,10 +56,7 @@
   "publishConfig": {
     "provenance": true
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/escapace/canonicalize.git"
-  },
+  "repository": "escapace/canonicalize",
   "scripts": {
     "build": "node ./scripts/build.mjs",
     "lint": "ls-lint && eslint 'src/**/*.{js,mjs,cjs,ts,mts,cts}'",
