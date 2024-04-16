@@ -8,8 +8,8 @@
  * The zeroth value gets no prepended comma
  * @hidden
  */
-function hasComma(num: number): string {
-  return num === 0 ? '' : ','
+function hasComma(number_: number): string {
+  return number_ === 0 ? '' : ','
 }
 
 /**
@@ -23,7 +23,7 @@ export function canonicalize(object: any): string | undefined {
   // See : https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof
   if (
     object === null ||
-    typeof object === 'undefined' ||
+    object === undefined ||
     typeof object === 'boolean' ||
     typeof object === 'number' ||
     typeof object === 'string'
