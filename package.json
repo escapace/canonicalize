@@ -10,17 +10,14 @@
   "devDependencies": {
     "@commitlint/cli": "19.2.1",
     "@commitlint/config-conventional": "19.1.0",
-    "@eslint/eslintrc": "3.0.2",
-    "@eslint/js": "8.57.0",
     "@ls-lint/ls-lint": "2.2.3",
     "@types/fs-extra": "11.0.4",
     "@types/jsonfile": "6.1.4",
     "@types/node": "20.12.2",
     "@vitest/coverage-v8": "1.4.0",
     "esbuild": "0.20.2",
-    "eslint": "8.57.0",
-    "eslint-config-escapace": "4.0.1",
-    "eslint-config-prettier": "9.1.0",
+    "eslint": "9.0.0",
+    "eslint-config-escapace": "4.1.1",
     "execa": "8.0.1",
     "fs-extra": "11.2.0",
     "globals": "15.0.0",
@@ -32,7 +29,6 @@
     "semver": "7.6.0",
     "syncpack": "12.3.0",
     "typescript": "5.4.3",
-    "typescript-eslint": "7.6.0",
     "vitest": "1.4.0"
   },
   "engines": {
