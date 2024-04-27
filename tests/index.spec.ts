@@ -1,8 +1,9 @@
+/* eslint-disable typescript/no-unsafe-assignment */
+/* eslint-disable unicorn/prevent-abbreviations */
+/* eslint-disable unicorn/consistent-function-scoping */
 // Copyright © 2020-2023 Truestamp Inc. All rights reserved.
 
-/* eslint-disable  @typescript-eslint/ban-ts-comment */
-
-import { describe, test, expect } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { canonicalize } from '../src/index'
 
@@ -74,7 +75,7 @@ describe('serializing', () => {
     // at JSON.stringify(<anonymous>)
     test('BigInt should throw a TypeError', () => {
       const t = () => {
-        const bigint = BigInt(9007199254740991)
+        const bigint = BigInt(9_007_199_254_740_991)
         canonicalize(bigint)
       }
       expect(t).toThrow(TypeError)
@@ -115,15 +116,13 @@ describe('serializing', () => {
           console.log('hello')
         },
       ]
-      expect(canonicalize(a)).toEqual(
-        '[null,null,true,false,"foo",42,"42",null,null]',
-      )
+      expect(canonicalize(a)).toEqual('[null,null,true,false,"foo",42,"42",null,null]')
     })
 
     test('Array with String keys', () => {
       const a = ['foo', 'bar']
-      // @ts-ignore-next-line
-      a['baz'] = 'quux' // a: [ 0: 'foo', 1: 'bar', baz: 'quux' ]
+      // @ts-expect-error-next-line
+      a.baz = 'quux' // a: [ 0: 'foo', 1: 'bar', baz: 'quux' ]
       expect(canonicalize(a)).toEqual('["foo","bar"]')
     })
 
@@ -191,11 +190,9 @@ describe('serializing', () => {
     // JSON.stringify({ [Symbol.for('foo')]: 'foo' }, [Symbol.for('foo')]);
     // '{}'
     test('Symbols', () => {
-      // @ts-ignore-next-line
       const e1 = { x: undefined, y: Object, z: Symbol('') }
       expect(canonicalize(e1)).toEqual('{}')
 
-      // @ts-ignore-next-line
       const e2 = { [Symbol('foo')]: 'foo' }
       expect(canonicalize(e2)).toEqual('{}')
 
@@ -207,8 +204,8 @@ describe('serializing', () => {
     // '{"y":"y"}'
     test('Non-enumerable properties', () => {
       const o = Object.create(null, {
-        x: { value: 'x', enumerable: false },
-        y: { value: 'y', enumerable: true },
+        x: { enumerable: false, value: 'x' },
+        y: { enumerable: true, value: 'y' },
       })
       expect(canonicalize(o)).toEqual('{"y":"y"}')
     })
@@ -291,15 +288,11 @@ describe('serializing', () => {
     })
 
     test('an object in an array', () => {
-      expect(canonicalize([{ b: 123, a: 'string' }])).toEqual(
-        '[{"a":"string","b":123}]',
-      )
+      expect(canonicalize([{ a: 'string', b: 123 }])).toEqual('[{"a":"string","b":123}]')
     })
 
     test('a multi-element array', () => {
-      expect(canonicalize(['abc', 123, true, false, null])).toEqual(
-        '["abc",123,true,false,null]',
-      )
+      expect(canonicalize(['abc', 123, true, false, null])).toEqual('["abc",123,true,false,null]')
     })
   })
 
@@ -321,7 +314,7 @@ describe('serializing', () => {
     })
 
     test('an object with more than one key should sort keys', () => {
-      expect(canonicalize({ number: 123, hello: 'world' })).toEqual(
+      expect(canonicalize({ hello: 'world', number: 123 })).toEqual(
         '{"hello":"world","number":123}',
       )
     })
@@ -339,15 +332,11 @@ describe('serializing', () => {
     })
 
     test('an object with object value', () => {
-      expect(canonicalize({ test: { hello: 'world' } })).toEqual(
-        '{"test":{"hello":"world"}}',
-      )
+      expect(canonicalize({ test: { hello: 'world' } })).toEqual('{"test":{"hello":"world"}}')
     })
 
     test('an object with array value', () => {
-      expect(canonicalize({ test: ['hello', 'world'] })).toEqual(
-        '{"test":["hello","world"]}',
-      )
+      expect(canonicalize({ test: ['hello', 'world'] })).toEqual('{"test":["hello","world"]}')
     })
 
     test('an object with a function value', () => {
@@ -364,9 +353,9 @@ describe('serializing', () => {
         toJSON: function () {
           // c: is only present in the serialized output
           return {
-            c: 'foo',
-            b: this.b,
             a: this.a,
+            b: this.b,
+            c: 'foo',
           }
         },
       }
@@ -387,7 +376,7 @@ describe('serializing', () => {
 
         // c: is only present in the serialized output
         toJSON() {
-          return { c: 'foo', b: this.b, a: this.a }
+          return { a: this.a, b: this.b, c: 'foo' }
         }
       }
 
@@ -398,8 +387,8 @@ describe('serializing', () => {
 
     test('a class with no toJSON serializer function', () => {
       class Foo {
-        b: number
         a: number
+        b: number
         constructor(b: number, a: number) {
           this.b = b
           this.a = a
