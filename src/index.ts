@@ -1,12 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable typescript/no-unsafe-assignment */
+/* eslint-disable typescript/no-unsafe-call */
+/* eslint-disable typescript/no-unsafe-member-access */
+/* eslint-disable typescript/no-explicit-any */
 // Copyright © 2020-2023 Truestamp Inc. All rights reserved.
 
 /**
  * The zeroth value gets no prepended comma
- * @hidden
+ * @internal
  */
 function hasComma(number_: number): string {
   return number_ === 0 ? '' : ','
@@ -14,8 +14,8 @@ function hasComma(number_: number): string {
 
 /**
  * Convert a JSON serializable object to a canonicalized string.
- * @param object The object to convert.
- * @return The canonicalized string or undefined.
+ * @param object - The object to convert
+ * @returns The canonicalized string or undefined.
  */
 export function canonicalize(object: undefined): undefined
 export function canonicalize(object: any): string
@@ -49,9 +49,7 @@ export function canonicalize(object: any): string | undefined {
     const values = object.reduce((t: any, cv: any, ci: number): string => {
       // In Arrays, undefined, symbols, and functions are replaced with null
       const value =
-        cv === undefined || typeof cv === 'symbol' || typeof cv === 'function'
-          ? null
-          : cv
+        cv === undefined || typeof cv === 'symbol' || typeof cv === 'function' ? null : cv
       // total,value
       return `${t}${hasComma(ci)}${canonicalize(value)}`
     }, '')
@@ -72,9 +70,7 @@ export function canonicalize(object: any): string | undefined {
       }
 
       // total,key:value
-      return `${t}${hasComma(t.length)}${canonicalize(cv)}:${canonicalize(
-        object[cv]
-      )}`
+      return `${t}${hasComma(t.length)}${canonicalize(cv)}:${canonicalize(object[cv])}`
     }, '')
   return `{${values}}`
 }
