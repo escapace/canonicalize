@@ -1,1 +1,2 @@
-tests/testdata
+lib
+pnpm-lock.yaml
