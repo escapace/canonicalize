@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "allowArbitraryExtensions": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "declaration": true,
