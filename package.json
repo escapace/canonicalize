@@ -15,7 +15,7 @@
     "@types/fs-extra": "11.0.4",
     "@vitest/coverage-v8": "1.6.0",
     "eslint": "9.6.0",
-    "eslint-config-escapace": "5.2.0",
+    "eslint-config-escapace": "5.2.1",
     "esroll": "0.2.0",
     "fs-extra": "11.2.0",
     "knip": "5.23.3",
