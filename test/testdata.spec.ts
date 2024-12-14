@@ -13,10 +13,10 @@ const toHex = (string?: string | Uint8Array) =>
   string === undefined ? undefined : Buffer.from(string).toString('hex')
 
 test('arrays', () => {
-  const input = readJsonSync('tests/testdata/input/arrays.json')
-  const expected = fs.readFileSync('tests/testdata/output/arrays.json', 'utf8').trim()
+  const input = readJsonSync('test/testdata/input/arrays.json')
+  const expected = fs.readFileSync('test/testdata/output/arrays.json', 'utf8').trim()
   const expectedHex = fs
-    .readFileSync('tests/testdata/outhex/arrays.txt', 'utf8')
+    .readFileSync('test/testdata/outhex/arrays.txt', 'utf8')
     .trim()
     .replace(/\s+/g, '')
   expect(canonicalize(input)).toEqual(expected)
@@ -24,10 +24,10 @@ test('arrays', () => {
 })
 
 test('french', () => {
-  const input = readJsonSync('tests/testdata/input/french.json')
-  const expected = fs.readFileSync('tests/testdata/output/french.json', 'utf8').trim()
+  const input = readJsonSync('test/testdata/input/french.json')
+  const expected = fs.readFileSync('test/testdata/output/french.json', 'utf8').trim()
   const expectedHex = fs
-    .readFileSync('tests/testdata/outhex/french.txt', 'utf8')
+    .readFileSync('test/testdata/outhex/french.txt', 'utf8')
     .trim()
     .replace(/\s+/g, '')
   expect(canonicalize(input)).toEqual(expected)
@@ -35,10 +35,10 @@ test('french', () => {
 })
 
 test('structures', () => {
-  const input = readJsonSync('tests/testdata/input/structures.json')
-  const expected = fs.readFileSync('tests/testdata/output/structures.json', 'utf8').trim()
+  const input = readJsonSync('test/testdata/input/structures.json')
+  const expected = fs.readFileSync('test/testdata/output/structures.json', 'utf8').trim()
   const expectedHex = fs
-    .readFileSync('tests/testdata/outhex/structures.txt', 'utf8')
+    .readFileSync('test/testdata/outhex/structures.txt', 'utf8')
     .trim()
     .replace(/\s+/g, '')
   expect(canonicalize(input)).toEqual(expected)
@@ -46,10 +46,10 @@ test('structures', () => {
 })
 
 test('unicode', () => {
-  const input = readJsonSync('tests/testdata/input/unicode.json')
-  const expected = fs.readFileSync('tests/testdata/output/unicode.json', 'utf8').trim()
+  const input = readJsonSync('test/testdata/input/unicode.json')
+  const expected = fs.readFileSync('test/testdata/output/unicode.json', 'utf8').trim()
   const expectedHex = fs
-    .readFileSync('tests/testdata/outhex/unicode.txt', 'utf8')
+    .readFileSync('test/testdata/outhex/unicode.txt', 'utf8')
     .trim()
     .replace(/\s+/g, '')
   expect(canonicalize(input)).toEqual(expected)
@@ -57,10 +57,10 @@ test('unicode', () => {
 })
 
 test('values', () => {
-  const input = readJsonSync('tests/testdata/input/values.json')
-  const expected = fs.readFileSync('tests/testdata/output/values.json', 'utf8').trim()
+  const input = readJsonSync('test/testdata/input/values.json')
+  const expected = fs.readFileSync('test/testdata/output/values.json', 'utf8').trim()
   const expectedHex = fs
-    .readFileSync('tests/testdata/outhex/values.txt', 'utf8')
+    .readFileSync('test/testdata/outhex/values.txt', 'utf8')
     .trim()
     .replace(/\s+/g, '')
   expect(canonicalize(input)).toEqual(expected)
@@ -68,10 +68,10 @@ test('values', () => {
 })
 
 test('weird', () => {
-  const input = readJsonSync('tests/testdata/input/weird.json')
-  const expected = fs.readFileSync('tests/testdata/output/weird.json', 'utf8').trim()
+  const input = readJsonSync('test/testdata/input/weird.json')
+  const expected = fs.readFileSync('test/testdata/output/weird.json', 'utf8').trim()
   const expectedHex = fs
-    .readFileSync('tests/testdata/outhex/weird.txt', 'utf8')
+    .readFileSync('test/testdata/outhex/weird.txt', 'utf8')
     .trim()
     .replace(/\s+/g, '')
   expect(canonicalize(input)).toEqual(expected)
