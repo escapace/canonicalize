@@ -43,6 +43,12 @@
   "homepage": "https://github.com/escapace/canonicalize#readme",
   "license": "MIT",
   "module": "lib/neutral/index.js",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "lefthook",
+      "esbuild"
+    ]
+  },
   "private": false,
   "publishConfig": {
     "access": "public",
