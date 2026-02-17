@@ -201,11 +201,9 @@ function serializeValue(
     return undefined
   }
 
-  if (isObjectLike(value) || typeof value === 'bigint') {
-    const toJSON = getValueProperty(value, 'toJSON')
-    if (isCallable(toJSON)) {
-      value = toJSON.call(value, key)
-    }
+  const toJSON = getValueProperty(value as bigint | object, 'toJSON')
+  if (isCallable(toJSON)) {
+    value = toJSON.call(value, key)
   }
 
   if (isObjectLike(value)) {
