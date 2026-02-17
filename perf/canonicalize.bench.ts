@@ -1,7 +1,6 @@
 import { bench, describe } from 'vitest'
 
-import { canonicalize as canonicalizeCurrent } from '../src/index'
-import { canonicalize as canonicalizeOriginal } from '../src/original'
+import { canonicalize } from '../src/index'
 
 type SafeJson = boolean | number | string | SafeJson[] | { [key: string]: SafeJson } | null
 
@@ -117,8 +116,7 @@ const inputs = generateInputs(3000, Number.isFinite(benchmarkSeed) ? benchmarkSe
 // Keep generation and safety checks out of benchmark timing.
 for (const input of inputs) {
   JSON.stringify(input)
-  canonicalizeOriginal(input)
-  canonicalizeCurrent(input)
+  canonicalize(input)
 }
 
 let _sink = 0
@@ -128,11 +126,7 @@ describe('canonicalize performance', () => {
     _sink ^= runSerializer((value) => JSON.stringify(value), inputs)
   })
 
-  bench('canonicalize original (src/original.ts)', () => {
-    _sink ^= runSerializer(canonicalizeOriginal, inputs)
-  })
-
-  bench('canonicalize current (src/index.ts)', () => {
-    _sink ^= runSerializer(canonicalizeCurrent, inputs)
+  bench('canonicalize (src/index.ts)', () => {
+    _sink ^= runSerializer(canonicalize, inputs)
   })
 })
