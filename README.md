@@ -89,19 +89,19 @@ When runtime support is not available, values are serialized with standard objec
 
 # API
 
-## function canonicalize [↗](src/index.ts#L276-L286 'canonicalize')
+## function canonicalize [↗](src/index.ts#L274-L284 'canonicalize')
 
 Serializes a JSON-like value to a deterministic JSON string with canonical object key ordering.
 
 ```typescript
-export declare function canonicalize(value: undefined): undefined
+export declare function canonicalize(value: unknown): string | undefined
 ```
 
 ### Parameters
 
-| Parameter | Type                 | Description               |
-| --------- | -------------------- | ------------------------- |
-| `value`   | <pre>undefined</pre> | Input value to serialize. |
+| Parameter | Type               | Description               |
+| --------- | ------------------ | ------------------------- |
+| `value`   | <pre>unknown</pre> | Input value to serialize. |
 
 ### Returns
 
