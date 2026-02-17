@@ -20,60 +20,27 @@ function isCallable(value: unknown): value is (...arguments_: any[]) => unknown 
   return typeof value === 'function'
 }
 
-function hasNumberData(value: object): boolean {
-  try {
-    Number.prototype.valueOf.call(value)
-    return true
-  } catch {
-    return false
-  }
-}
-
-function hasStringData(value: object): boolean {
-  try {
-    String.prototype.valueOf.call(value)
-    return true
-  } catch {
-    return false
-  }
-}
-
-function hasBooleanData(value: object): boolean {
-  try {
-    Boolean.prototype.valueOf.call(value)
-    return true
-  } catch {
-    return false
-  }
-}
-
-function hasBigIntData(value: object): boolean {
-  try {
-    BigInt.prototype.valueOf.call(value)
-    return true
-  } catch {
-    return false
-  }
-}
-
 function coercePrimitiveWrapper(value: object): unknown {
-  if (hasNumberData(value)) {
+  const tag = Object.prototype.toString.call(value)
+  const constructor = (value as { constructor?: unknown }).constructor
+
+  if (tag === '[object Number]' && constructor !== Object) {
     // JSON.stringify uses ToNumber for Number objects, which respects Symbol.toPrimitive.
     return Number(value)
   }
 
-  if (hasStringData(value)) {
+  if (tag === '[object String]' && constructor !== Object) {
     // JSON.stringify uses ToString for String objects, which respects Symbol.toPrimitive.
     // eslint-disable-next-line typescript/no-base-to-string
     return String(value)
   }
 
-  if (hasBooleanData(value)) {
+  if (tag === '[object Boolean]' && constructor !== Object) {
     // JSON.stringify uses [[BooleanData]] directly for Boolean objects.
     return Boolean.prototype.valueOf.call(value)
   }
 
-  if (hasBigIntData(value)) {
+  if (tag === '[object BigInt]' && constructor !== Object) {
     // JSON.stringify uses [[BigIntData]] directly for BigInt objects.
     return BigInt.prototype.valueOf.call(value)
   }
@@ -90,14 +57,50 @@ function serializeArray(state: SerializationState, value: any[]): string {
 
   try {
     const length = value.length >>> 0
-    const serializedValues: string[] = []
+    let output = '['
 
     for (let index = 0; index < length; index += 1) {
-      const serialized = serializeProperty(state, index.toString(), value)
-      serializedValues.push(serialized ?? 'null')
+      if (index > 0) {
+        output += ','
+      }
+
+      const element = value[index]
+
+      if (element === null) {
+        output += 'null'
+        continue
+      }
+
+      if (element === true) {
+        output += 'true'
+        continue
+      }
+
+      if (element === false) {
+        output += 'false'
+        continue
+      }
+
+      if (typeof element === 'string') {
+        output += JSON.stringify(element)
+        continue
+      }
+
+      if (typeof element === 'number') {
+        output += Number.isFinite(element) ? element.toString() : 'null'
+        continue
+      }
+
+      if (element === undefined || typeof element === 'function' || typeof element === 'symbol') {
+        output += 'null'
+        continue
+      }
+
+      output += serializeValue(state, index.toString(), element) ?? 'null'
     }
 
-    return `[${serializedValues.join(',')}]`
+    output += ']'
+    return output
   } finally {
     state.stack.delete(value)
   }
@@ -114,23 +117,44 @@ function serializeObject(state: SerializationState, value: Record<string, any>):
     // Evaluate properties in JSON/Object.keys traversal order first, then emit in canonical order.
     // This preserves getter/toJSON side effects from visitation order while keeping deterministic output.
     const traversalKeys = Object.keys(value)
-    const serializedByKey = new Map<string, string | undefined>()
+    const keyCount = traversalKeys.length
 
-    for (const key of traversalKeys) {
-      serializedByKey.set(key, serializeProperty(state, key, value))
+    if (keyCount === 0) {
+      return '{}'
     }
 
-    const outputKeys = [...traversalKeys].sort()
-    const serializedValues: string[] = []
+    if (keyCount === 1) {
+      const onlyKey = traversalKeys[0]
+      const serialized = serializeValue(state, onlyKey, value[onlyKey])
+      return serialized === undefined ? '{}' : `{${JSON.stringify(onlyKey)}:${serialized}}`
+    }
 
-    for (const key of outputKeys) {
+    const serializedByKey = new Map<string, string | undefined>()
+
+    for (let index = 0; index < keyCount; index += 1) {
+      const key = traversalKeys[index]
+      serializedByKey.set(key, serializeValue(state, key, value[key]))
+    }
+
+    traversalKeys.sort()
+    let output = '{'
+    let isFirst = true
+
+    for (let index = 0; index < keyCount; index += 1) {
+      const key = traversalKeys[index]
       const serialized = serializedByKey.get(key)
       if (serialized !== undefined) {
-        serializedValues.push(`${JSON.stringify(key)}:${serialized}`)
+        if (!isFirst) {
+          output += ','
+        }
+
+        output += `${JSON.stringify(key)}:${serialized}`
+        isFirst = false
       }
     }
 
-    return `{${serializedValues.join(',')}}`
+    output += '}'
+    return output
   } finally {
     state.stack.delete(value)
   }
@@ -140,12 +164,36 @@ function getValueProperty(value: bigint | object, property: string): unknown {
   return Reflect.get(Object(value), property)
 }
 
-function serializeProperty(
+function serializeValue(
   state: SerializationState,
   key: string,
-  holder: Record<string, any>,
+  inputValue: unknown,
 ): string | undefined {
-  let value = holder[key]
+  let value = inputValue
+
+  if (value === null) {
+    return 'null'
+  }
+
+  if (value === true) {
+    return 'true'
+  }
+
+  if (value === false) {
+    return 'false'
+  }
+
+  if (typeof value === 'string') {
+    return JSON.stringify(value)
+  }
+
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value.toString() : 'null'
+  }
+
+  if (value === undefined || typeof value === 'function' || typeof value === 'symbol') {
+    return undefined
+  }
 
   if (isObjectLike(value) || typeof value === 'bigint') {
     const toJSON = getValueProperty(value, 'toJSON')
@@ -228,5 +276,5 @@ export function canonicalize(value: unknown): string | undefined {
     },
   }
 
-  return serializeProperty(state, '', { '': value })
+  return serializeValue(state, '', value)
 }

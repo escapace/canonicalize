@@ -85,8 +85,7 @@ function randomSafeJson(random: () => number, depth: number): SafeJson {
   return object
 }
 
-function generateInputs(size: number): SafeJson[] {
-  const seed = Math.floor(Math.random() * 4_294_967_296)
+function generateInputs(size: number, seed: number): SafeJson[] {
   const random = mulberry32(seed)
 
   const inputs: SafeJson[] = []
@@ -111,7 +110,9 @@ function runSerializer(
   return totalLength
 }
 
-const inputs = generateInputs(300)
+const randomSeed = Math.floor(Math.random() * 4_294_967_296)
+const benchmarkSeed = Number.parseInt(process.env.BENCH_SEED ?? `${randomSeed}`, 10)
+const inputs = generateInputs(3000, Number.isFinite(benchmarkSeed) ? benchmarkSeed : randomSeed)
 
 // Keep generation and safety checks out of benchmark timing.
 for (const input of inputs) {
