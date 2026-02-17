@@ -126,7 +126,11 @@ function serializeObject(state: SerializationState, value: Record<string, any>):
     if (keyCount === 1) {
       const onlyKey = traversalKeys[0]
       const serialized = serializeValue(state, onlyKey, value[onlyKey])
-      return serialized === undefined ? '{}' : `{${JSON.stringify(onlyKey)}:${serialized}}`
+      if (serialized === undefined) {
+        return '{}'
+      }
+
+      return '{' + JSON.stringify(onlyKey) + ':' + serialized + '}'
     }
 
     const serializedByKey = new Map<string, string | undefined>()
@@ -148,7 +152,9 @@ function serializeObject(state: SerializationState, value: Record<string, any>):
           output += ','
         }
 
-        output += `${JSON.stringify(key)}:${serialized}`
+        output += JSON.stringify(key)
+        output += ':'
+        output += serialized
         isFirst = false
       }
     }
@@ -237,7 +243,7 @@ function serializeValue(
     }
   }
 
-  if (isObjectLike(value) && !isCallable(value)) {
+  if (isObjectLike(value)) {
     if (Array.isArray(value)) {
       return serializeArray(state, value)
     }

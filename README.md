@@ -89,7 +89,7 @@ When runtime support is not available, values are serialized with standard objec
 
 # API
 
-## function canonicalize [↗](src/index.ts#L222-L232 'canonicalize')
+## function canonicalize [↗](src/index.ts#L276-L286 'canonicalize')
 
 Serializes a JSON-like value to a deterministic JSON string with canonical object key ordering.
 
