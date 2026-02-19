@@ -39,11 +39,22 @@ For supported domains, value-handling semantics follow `JSON.stringify`, includi
 
 ### `undefined`, function, and symbol handling (by context)
 
-For values that serialize to `undefined` under JSON rules (`undefined`, functions, and symbols):
+Values with no JSON representation — `undefined`, symbols, and functions — propagate differently
+depending on where they appear:
 
-- Root value: returns `undefined`.
-- Object property value: omitted.
-- Array element value: serialized as `null`.
+- Root: returns `undefined`.
+- Object property: omitted from output.
+- Array element: becomes `"null"`.
+
+```ts
+canonicalize(undefined) // undefined
+canonicalize({ keep: 1, drop: undefined }) // '{"keep":1}'
+canonicalize([1, undefined, 2]) // '[1,null,2]'
+```
+
+For TypeScript callers, `null`, `boolean`, `number`, and `string` inputs have a narrowed return
+type of `string`. Object and `bigint` inputs remain `string | undefined` because their outcome
+depends on `toJSON` dispatch at runtime.
 
 ## Intentional differences from `JSON.stringify`
 
@@ -89,9 +100,9 @@ When runtime support is not available, values are serialized with standard objec
 
 # API
 
-## function canonicalize [↗](src/index.ts#L274-L284 'canonicalize')
+## function canonicalize [↗](src/index.ts#L293-L303 'canonicalize')
 
-Serializes a JSON-like value to a deterministic JSON string with canonical object key ordering.
+Converts a value to a canonical JSON string with object keys in lexicographic order.
 
 ```typescript
 export declare function canonicalize(value: unknown): string | undefined
@@ -99,23 +110,32 @@ export declare function canonicalize(value: unknown): string | undefined
 
 ### Parameters
 
-| Parameter | Type               | Description               |
-| --------- | ------------------ | ------------------------- |
-| `value`   | <pre>unknown</pre> | Input value to serialize. |
+| Parameter | Type               | Description         |
+| --------- | ------------------ | ------------------- |
+| `value`   | <pre>unknown</pre> | Value to serialize. |
 
 ### Returns
 
-A canonical JSON string, or `undefined` when root serialization is `undefined` under JSON rules.
+A canonical JSON string, or `undefined` when the input has no JSON representation.
 
 ### Throws
 
-TypeError When serialization encounters a `BigInt` without `BigInt.prototype.toJSON`, or a circular structure.
+1. TypeError When a `BigInt` value is encountered without `BigInt.prototype.toJSON` defined.
+2. TypeError When the input contains a circular object reference.
 
 ### Remarks
 
-Value handling follows `JSON.stringify` semantics for supported domains, including `toJSON`, boxed primitives, sparse arrays, dates, typed arrays, and circular-structure errors.
+Value semantics follow `JSON.stringify` for the supported domain, including `toJSON` lookup and invocation, boxed-primitive coercion, sparse-array traversal, `Date` conversion via `Date.prototype.toJSON`, and circular-structure detection.
 
-Intentional differences from `JSON.stringify`:
+Non-serializable values — `undefined`, symbols, and functions — yield `undefined` rather than a string. The enclosing container determines how that result propagates:
 
-- Object keys are emitted in canonical lexicographic order.
+- At root, the function returns `undefined`.
+- As an object property value, the property is omitted from output.
+- As an array element, the element is serialized as `"null"`.
+
+Two behaviors differ intentionally from `JSON.stringify`:
+
+- Object keys are emitted in lexicographic string code-unit order, equivalent to `Object.keys(obj).sort()`. Integer-like keys follow the same order rather than the numeric-first ordering that `JSON.stringify` applies.
 - Replacer and spacing parameters are not supported.
+
+The return type is narrowed for primitive inputs whose outcome is determined before any `toJSON` call: `null`, `boolean`, `number`, and `string` inputs return `string`; `undefined` and `symbol` inputs return `undefined`. Object and `bigint` inputs remain `string | undefined` because their outcome depends on `toJSON` dispatch, which TypeScript cannot inspect statically.
